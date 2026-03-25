@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="./aframe-ar-main/dist/aframe-ar.min.js"></script>
+
+<title>John Cena AR</title>
+</head>
+
+<body>
+
+<script>
+function showMessage(message){
+  let hud = document.querySelector("#hud");
+  if(hud){
+    hud.setAttribute('value', message);
+  }
+}
+
+AFRAME.registerComponent('ar-logic',{
+  init: function(){
+    showMessage('');
+  },
+
+  tick : function(){
+    let cam = document.querySelector("#cam");
+    if(!cam || !cam.components.raycaster){return;}
+
+    let hit = cam.components.raycaster.getIntersection(document.querySelector("#circle"));
+    if(!hit){return;}
+
+    showMessage('Detected: ' + hit.point.x.toFixed(2) + " " + hit.point.z.toFixed(2));
+
+    let circle = document.querySelector("#circle");
+    circle.setAttribute('position', hit.point);
+  }
+});
+
+window.addEventListener('touchstart', function(){
+  let model = document.querySelector("#box");
+  let circle = document.querySelector("#circle");
+
+  let pos = circle.getAttribute('position');
+  model.setAttribute('position', pos);
+});
+</script>
+
+<a-scene ar ar-logic>
+
+  <!-- Camera -->
+  <a-camera id="cam" ar-raycaster>
+    <a-text id="hud"
+      value="Loading..."
+      position="0 -0.1 -0.3"
+      align="center">
+    </a-text>
+  </a-camera>
+
+  <!-- Reticle -->
+  <a-ring
+    id="circle"
+    rotation="-90 0 0"
+    radius-inner="0.02"
+    radius-outer="0.03"
+    color="cyan">
+  </a-ring>
+
+  <!-- Lights -->
+  <a-light type="ambient" intensity="1"></a-light>
+  <a-light type="directional" position="1 2 1"></a-light>
+
+  <!-- John Cena Model -->
+  <a-gltf-model id="box"
+    src="model/john.glb"
+    scale="0.1 0.1 0.1"
+    position="0 0 -1"
+    rotation="0 0 0">
+  </a-gltf-model>
+
+</a-scene>
+
+</body>
+</html>
